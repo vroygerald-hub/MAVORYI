@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>MAVORYI | ADMIN</title>
+    <link rel="stylesheet" href="../frontend/styles.css?v=24">
+    <script src="../frontend/script.js?v=24" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../frontend/supabase-config.js?v=1" defer></script>
+    <script src="admin.js?v=2" defer></script>
+</head>
+<body class="admin-page">
+<header>
+    <div class="site-header">
+        <h1 id="page-title">MAVORYI</h1>
+        <nav class="nav-actions" aria-label="Main navigation">
+            <div class="nav-links">
+                <a href="../frontend/index.html">HOME</a>
+                <a href="../frontend/cart.html">CART</a>
+                <a href="admin.html" aria-current="page">ADMIN</a>
+            </div>
+            <button class="theme-toggle" type="button" aria-label="Switch to light mode"></button>
+        </nav>
+    </div>
+</header>
+<main class="admin-main">
+    <section class="admin-login" data-admin-login-panel>
+        <p class="product-detail-category">PRIVATE AREA</p>
+        <h2>Admin sign in</h2>
+        <form class="admin-login-form" data-admin-login>
+            <label>Email<input type="email" name="email" autocomplete="username" required></label>
+            <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+            <button class="button-primary" type="submit" data-admin-login-button>Sign in</button>
+            <p class="admin-message" data-admin-login-message role="status" aria-live="polite"></p>
+        </form>
+    </section>
+    <section class="admin-dashboard" data-admin-dashboard hidden>
+        <div class="admin-heading">
+            <div>
+                <p class="product-detail-category">ORDER MANAGEMENT</p>
+                <h2>Customer orders</h2>
+            </div>
+            <div class="admin-actions">
+                <button class="admin-button" type="button" data-admin-refresh>Refresh</button>
+                <button class="admin-button" type="button" data-admin-logout>Sign out</button>
+            </div>
+        </div>
+        <div class="admin-live-row">
+            <p class="admin-live-status" data-admin-live-status>Live updates connect after admin sign-in.</p>
+            <div class="admin-new-order" data-admin-new-order role="status" aria-live="polite" hidden>
+                <span data-admin-new-order-message>New order received.</span>
+                <button class="admin-button" type="button" data-admin-dismiss-notification>Dismiss</button>
+            </div>
+        </div>
+        <p class="admin-message" data-admin-dashboard-message role="status" aria-live="polite"></p>
+        <section class="admin-catalog" aria-labelledby="catalog-heading">
+            <h3 id="catalog-heading">Product prices</h3>
+            <p>Set GHS prices here. Leaving a price blank keeps “Price on request”.</p>
+            <div class="admin-product-list" data-admin-products></div>
+        </section>
+        <div class="admin-orders" data-admin-orders></div>
+    </section>
+</main>
+</body>
+</html>

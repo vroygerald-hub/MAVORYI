@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your MAVORYI shopping cart.">
+    <title>MAVORYI | CART</title>
+    <link rel="stylesheet" href="styles.css?v=24">
+    <script src="script.js?v=23" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js?v=1" defer></script>
+    <script src="product-data.js?v=2" defer></script>
+    <script src="shop.js?v=2" defer></script>
+    <script src="order-checkout.js?v=2" defer></script>
+</head>
+<body class="cart-page" data-shop-page="cart">
+<header>
+    <div class="site-header">
+        <h1 id="page-title">MAVORYI</h1>
+        <nav class="nav-actions" aria-label="Main navigation">
+            <div class="nav-links">
+                <a href="index.html">HOME</a>
+                <a href="about.html">ABOUT</a>
+                <a href="contact.html">CONTACT</a>
+                <a href="cart.html" aria-current="page">CART <span class="cart-count" aria-live="polite">0</span></a>
+            </div>
+            <button class="theme-toggle" type="button" aria-label="Switch to light mode"></button>
+        </nav>
+    </div>
+</header>
+<main class="cart-main">
+    <div class="cart-heading">
+        <p class="product-detail-category">MAVORYI SELECTION</p>
+        <h2>Your cart</h2>
+    </div>
+    <div class="cart-layout">
+        <section class="cart-items" aria-label="Items in your cart" data-cart-items></section>
+        <aside class="cart-summary">
+            <h3>Order summary</h3>
+            <div class="cart-summary-line"><span>Items</span><span data-cart-quantity>0</span></div>
+            <fieldset class="payment-timing" data-payment-timing hidden>
+                <legend>When would you like to pay?</legend>
+                <label class="payment-timing-option">
+                    <input type="radio" name="payment-timing" value="before-delivery" checked>
+                    <span><strong>Pay before delivery</strong><small>Free delivery</small></span>
+                </label>
+                <label class="payment-timing-option">
+                    <input type="radio" name="payment-timing" value="on-delivery">
+                    <span><strong>Pay on delivery</strong><small>Delivery fee applies</small></span>
+                </label>
+            </fieldset>
+            <div class="payment-options" data-payment-options hidden>
+                <label class="variant-label" for="payment-method">Choose payment method</label>
+                <select class="payment-method-select" id="payment-method" name="payment-method">
+                    <option value="mtn-momo" selected>MTN Mobile Money</option>
+                    <option value="telecel-cash">Telecel Cash</option>
+                    <option value="access-bank">Access Bank</option>
+                </select>
+                <p class="payment-help">Automated prepayment is temporarily unavailable while direct provider API access is being arranged. Choose pay on delivery or contact MAVORYI to arrange prepayment.</p>
+            </div>
+            <div class="cart-summary-line"><span>Delivery</span><span data-delivery-cost>Free</span></div>
+            <div class="cart-summary-line cart-total"><span>Total</span><span data-cart-total></span></div>
+            <form class="customer-order-form" data-order-form>
+                <h3>Delivery details</h3>
+                <label>Name<input name="customer-name" type="text" autocomplete="name" required maxlength="120"></label>
+                <label>Phone<input name="customer-phone" type="tel" autocomplete="tel" required maxlength="40"></label>
+                <label>Email<input name="customer-email" type="email" autocomplete="email" required maxlength="254"></label>
+                <label>Delivery address<textarea name="delivery-address" autocomplete="street-address" required maxlength="500"></textarea></label>
+                <label>City or area<input name="delivery-city" type="text" autocomplete="address-level2" required maxlength="120"></label>
+                <p class="order-submit-status" data-order-status role="status" aria-live="polite"></p>
+                <button class="button-primary cart-enquire" type="submit" data-order-submit>Submit order</button>
+                <a class="order-whatsapp-fallback" data-whatsapp-fallback href="#" target="_blank" rel="noopener" hidden>Send order on WhatsApp</a>
+            </form>
+            <a class="cart-continue" href="index.html#collection">Continue browsing</a>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

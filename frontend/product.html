@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Product details from MAVORYI.">
+    <title>MAVORYI | PRODUCT DETAILS</title>
+    <link rel="stylesheet" href="styles.css?v=24">
+    <script src="script.js?v=23" defer></script>
+    <script src="product-data.js?v=2" defer></script>
+    <script src="shop.js?v=2" defer></script>
+    <script src="slider.js?v=3" defer></script>
+</head>
+<body class="product-detail-page" data-shop-page="product">
+<header>
+    <div class="site-header">
+        <h1 id="page-title">MAVORYI</h1>
+        <nav class="nav-actions" aria-label="Main navigation">
+            <div class="nav-links">
+                <a href="index.html">HOME</a>
+                <a href="about.html">ABOUT</a>
+                <a href="contact.html">CONTACT</a>
+                <a href="cart.html">CART <span class="cart-count" aria-live="polite">0</span></a>
+            </div>
+            <button class="theme-toggle" type="button" aria-label="Switch to light mode"></button>
+        </nav>
+    </div>
+</header>
+<main class="product-detail-main">
+    <a class="back-link" href="index.html#collection">&#8592; FEATURED PRODUCTS</a>
+    <section class="product-detail-layout" aria-live="polite">
+        <div class="product-detail-gallery product-box slider" data-slider data-product-gallery>
+            <div class="slides" data-product-slides></div>
+            <button class="slider-btn prev" type="button" aria-label="Previous product image">&#8249;</button>
+            <button class="slider-btn next" type="button" aria-label="Next product image">&#8250;</button>
+            <div class="slider-dots" role="group" aria-label="Product images"></div>
+        </div>
+        <div class="product-detail-copy">
+            <p class="product-detail-category" data-product-category></p>
+            <h2 data-product-name>Product</h2>
+            <p class="product-detail-price" data-product-price></p>
+            <label class="variant-label" for="product-color">Colour</label>
+            <select id="product-color" class="variant-select" data-product-colors></select>
+            <dl class="product-detail-specs">
+                <div><dt>Material</dt><dd data-product-material></dd></div>
+                <div><dt>Product</dt><dd data-product-type></dd></div>
+            </dl>
+            <button class="button-primary add-to-cart" type="button" data-add-to-cart>Add to cart</button>
+            <p class="product-detail-note">Pricing and additional colour options are available on request.</p>
+            <a class="product-detail-cart-link" href="cart.html">View cart <span class="cart-count">0</span></a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

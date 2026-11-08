@@ -13,6 +13,40 @@
     document.documentElement.setAttribute("data-theme", theme);
 
     document.addEventListener("DOMContentLoaded", function () {
+        var menuToggle = document.querySelector(".header-menu-button");
+        var mainNavigation = document.querySelector("#main-navigation");
+
+        if (menuToggle && mainNavigation) {
+            function setMenuOpen(isOpen) {
+                mainNavigation.classList.toggle("is-open", isOpen);
+                menuToggle.setAttribute("aria-expanded", String(isOpen));
+                menuToggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+            }
+
+            menuToggle.addEventListener("click", function () {
+                setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
+            });
+
+            mainNavigation.querySelectorAll("a").forEach(function (link) {
+                link.addEventListener("click", function () {
+                    setMenuOpen(false);
+                });
+            });
+
+            document.addEventListener("click", function (event) {
+                if (!mainNavigation.contains(event.target) && !menuToggle.contains(event.target)) {
+                    setMenuOpen(false);
+                }
+            });
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape" && menuToggle.getAttribute("aria-expanded") === "true") {
+                    setMenuOpen(false);
+                    menuToggle.focus();
+                }
+            });
+        }
+
         var themeToggle = document.querySelector(".theme-toggle");
         var contactForm = document.querySelector(".contact-form");
         var emailLink = document.querySelector("#email-link");
@@ -134,7 +168,7 @@
                 });
         }
 
-        if (!themeToggle) {
+         if (!themeToggle) {
             return;
         }
 

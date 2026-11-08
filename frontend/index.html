@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MAVORYI — premium bags, helmets, and accessories. Timeless design, browse the collection.">
+    <title>MAVORYI | PRODUCT DISPLAY</title>
+    <link rel="stylesheet" type="text/css" href="styles.css?v=5">
+    <script src="script.js?v=24" defer></script>
+    <script src="product-data.js?v=2" defer></script>
+    <script src="shop.js?v=2" defer></script>
+    <script src="slider.js?v=3" defer></script>
+</head>
+
+<body>
+<header>
+  <div class="site-header">
+    <button class="header-menu-button" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="main-navigation"><span aria-hidden="true"></span></button>
+    <h1 id="page-title">MAVORYI</h1>
+    <div class="header-actions">
+      <a class="header-cart-link" href="cart.html" aria-label="Open cart"><span aria-hidden="true"></span><span class="cart-count" aria-live="polite">0</span></a>
+    </div>
+    <nav class="nav-actions" id="main-navigation">
+      <div class="nav-links">
+        <a href="cart.html">CART <span class="cart-count" aria-live="polite">0</span></a>
+        <a href="about.html">ABOUT</a>
+        <a href="contact.html">CONTACT</a>
+      </div>
+      <button class="theme-toggle" type="button" aria-label="Switch to light mode"></button>
+    </nav>
+  </div>
+</header>
+
+<div id="hero" class="mav-hero">
+  <div class="mav-hero-content">
+    <h1>THE ARRAY</h1>
+    <p>Premium quality. Timeless design.<br>
+    Browse Our Collection.</p>
+  </div>
+</div>
+
+<div class="collection-section" id="collection">
+  <h2 class="section-title">FEATURED PRODUCTS</h2>
+  <div class="category-filters-panel is-collapsed" data-category-filters-panel>
+    <button class="category-filters-toggle" type="button" aria-label="Show product filters" aria-expanded="false" aria-controls="featured-product-filters">
+      <svg class="category-filters-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="8" cy="6" r="2" fill="var(--surface)" stroke="currentColor" stroke-width="1.8"/>
+        <circle cx="16" cy="12" r="2" fill="var(--surface)" stroke="currentColor" stroke-width="1.8"/>
+        <circle cx="10" cy="18" r="2" fill="var(--surface)" stroke="currentColor" stroke-width="1.8"/>
+      </svg>
+    </button>
+    <div id="featured-product-filters" class="category-filters" role="group" aria-label="Filter featured products">
+      <button type="button" data-product-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-product-filter="bags" aria-pressed="false">Bags</button>
+      <button type="button" data-product-filter="helmets" aria-pressed="false">Helmets</button>
+      <button type="button" data-product-filter="umbrellas" aria-pressed="false">Umbrellas</button>
+      <button type="button" data-product-filter="gloves" aria-pressed="false">Gloves</button>
+    </div>
+  </div>
+  <div class="category-grid" data-product-grid></div>
+</div>
+
+</body>
+</html>
