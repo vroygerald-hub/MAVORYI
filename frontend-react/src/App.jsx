@@ -1170,7 +1170,7 @@ function CustomerApp() {
 }
 
 function App() {
-  return window.location.pathname.endsWith('/admin.html')
+  return window.location.pathname.endsWith('/MyBackdoor.html')
     ? <Suspense fallback={<main className="page-main"><p className="notice" role="status">Loading admin dashboard…</p></main>}><AdminPortal /></Suspense>
     : <CustomerApp />;
 }

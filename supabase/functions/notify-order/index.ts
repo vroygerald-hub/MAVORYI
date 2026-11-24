@@ -109,7 +109,7 @@ Deno.serve(async (request: Request) => {
             if (baseUrl.protocol !== "https:") {
                 return jsonResponse(500, "SITE_URL must use HTTPS");
             }
-            dashboardUrl = new URL("admin.html", baseUrl).toString();
+            dashboardUrl = new URL("MyBackdoor.html", baseUrl).toString();
         } catch {
             return jsonResponse(500, "Invalid SITE_URL");
         }
