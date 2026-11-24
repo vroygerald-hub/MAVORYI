@@ -5,12 +5,16 @@ create table if not exists public.products (
     image text,
     color text,
     material text,
+    description text check (description is null or char_length(description) <= 1000),
     price numeric(12, 2) check (price is null or price > 0),
     active boolean not null default true,
     position integer not null default 0,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
 );
+
+alter table public.products
+    add column if not exists description text check (description is null or char_length(description) <= 1000);
 
 insert into public.products (id, name, category, image, color, material, price, position)
 values
@@ -50,6 +54,43 @@ on public.products for update to authenticated
 using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
 with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
+create table if not exists public.upcoming_products (
+    id uuid primary key default gen_random_uuid(),
+    name text not null check (char_length(trim(name)) between 2 and 120),
+    category text not null check (char_length(trim(category)) between 2 and 80),
+    description text not null check (char_length(trim(description)) between 2 and 1000),
+    image text check (image is null or char_length(image) <= 1000),
+    color text check (color is null or char_length(color) <= 80),
+    material text check (material is null or char_length(material) <= 120),
+    expected_release text check (expected_release is null or char_length(expected_release) <= 80),
+    created_at timestamptz not null default now()
+);
+
+alter table public.upcoming_products enable row level security;
+revoke all on public.upcoming_products from anon, authenticated;
+grant select, insert, update, delete on public.upcoming_products to authenticated;
+
+drop policy if exists upcoming_products_member_read on public.upcoming_products;
+create policy upcoming_products_member_read
+on public.upcoming_products for select to authenticated
+using (true);
+
+drop policy if exists upcoming_products_admin_insert on public.upcoming_products;
+create policy upcoming_products_admin_insert
+on public.upcoming_products for insert to authenticated
+with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+drop policy if exists upcoming_products_admin_update on public.upcoming_products;
+create policy upcoming_products_admin_update
+on public.upcoming_products for update to authenticated
+using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+drop policy if exists upcoming_products_admin_delete on public.upcoming_products;
+create policy upcoming_products_admin_delete
+on public.upcoming_products for delete to authenticated
+using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
 create table if not exists public.orders (
     id uuid primary key default gen_random_uuid(),
     customer_name text not null check (char_length(trim(customer_name)) between 2 and 120),
@@ -64,6 +105,7 @@ create table if not exists public.orders (
     currency text not null default 'GHS',
     payment_provider text,
     payment_reference text,
+    payment_contact_method text,
     payment_status text not null default 'unpaid' check (
         payment_status in ('unpaid', 'pending', 'paid', 'failed', 'cancelled')
     ),
@@ -81,7 +123,7 @@ create table if not exists public.orders (
         or (payment_timing = 'before_delivery' and payment_method <> 'on-delivery')
     ),
     constraint orders_delivery_fee_matches_timing check (
-        (payment_timing = 'before_delivery' and delivery_fee = 0)
+        (payment_timing = 'before_delivery' and (delivery_fee is null or delivery_fee = 0))
         or (payment_timing = 'on_delivery' and (delivery_fee is null or delivery_fee >= 0))
     ),
     constraint orders_payment_provider_matches_timing check (
@@ -106,12 +148,15 @@ alter table public.orders
     add column if not exists currency text not null default 'GHS',
     add column if not exists payment_provider text,
     add column if not exists payment_reference text,
+    add column if not exists payment_contact_method text,
     add column if not exists payment_status text not null default 'unpaid',
     add column if not exists paid_at timestamptz;
 
 alter table public.orders
     drop constraint if exists orders_payment_method_check,
-    drop constraint if exists orders_payment_provider_matches_timing;
+    drop constraint if exists orders_payment_provider_matches_timing,
+    drop constraint if exists orders_delivery_fee_matches_timing,
+    drop constraint if exists orders_payment_contact_method_check;
 
 update public.orders
 set payment_method = 'legacy-online',
@@ -122,6 +167,12 @@ where payment_method = 'paystack'
 alter table public.orders
     add constraint orders_payment_method_check
         check (payment_method in ('legacy-online', 'on-delivery', 'mtn-momo', 'momo', 'telecel-cash', 'access-bank', 'bank-transfer', 'cash-app', 'other')),
+    add constraint orders_delivery_fee_matches_timing check (
+        (payment_timing = 'before_delivery' and (delivery_fee is null or delivery_fee = 0))
+        or (payment_timing = 'on_delivery' and (delivery_fee is null or delivery_fee >= 0))
+    ),
+    add constraint orders_payment_contact_method_check
+        check (payment_contact_method is null or payment_contact_method in ('whatsapp', 'email')),
     add constraint orders_payment_provider_matches_timing check (
         (payment_timing = 'on_delivery' and payment_provider is null and payment_reference is null)
         or (
@@ -160,7 +211,13 @@ with check (
     and jsonb_typeof(items) = 'array'
     and jsonb_array_length(items) between 1 and 30
     and (
-        (payment_timing = 'before_delivery' and payment_method in ('mtn-momo', 'telecel-cash', 'access-bank') and delivery_fee = 0)
+        (payment_timing = 'before_delivery'
+            and payment_method in ('mtn-momo', 'telecel-cash', 'access-bank', 'other')
+            and (
+                (delivery_city ilike '%accra%' and delivery_fee = 0)
+                or (delivery_city not ilike '%accra%' and delivery_fee is null)
+            )
+        )
         or (payment_timing = 'on_delivery' and payment_method = 'on-delivery' and delivery_fee is null)
     )
 );
@@ -182,6 +239,132 @@ with check (
     (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
     and status in ('new', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled')
 );
+
+create table if not exists public.customer_profiles (
+    user_id uuid primary key references auth.users (id) on delete cascade,
+    email text,
+    full_name text,
+    created_at timestamptz not null default now(),
+    last_active_at timestamptz
+);
+
+alter table public.customer_profiles enable row level security;
+revoke all on public.customer_profiles from public, anon, authenticated;
+grant select on public.customer_profiles to authenticated;
+
+create or replace function public.sync_customer_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+    insert into public.customer_profiles (user_id, email, full_name, created_at)
+    values (
+        new.id,
+        new.email,
+        coalesce(
+            nullif(trim(new.raw_user_meta_data ->> 'name'), ''),
+            nullif(split_part(coalesce(new.email, ''), '@', 1), '')
+        ),
+        new.created_at
+    )
+    on conflict (user_id) do update
+    set email = excluded.email,
+        full_name = excluded.full_name;
+    return new;
+end;
+$$;
+
+revoke all on function public.sync_customer_profile() from public, anon, authenticated;
+
+drop trigger if exists on_auth_user_profile_synced on auth.users;
+create trigger on_auth_user_profile_synced
+after insert or update of email, raw_user_meta_data on auth.users
+for each row execute function public.sync_customer_profile();
+
+insert into public.customer_profiles (user_id, email, full_name, created_at)
+select
+    id,
+    email,
+    coalesce(
+        nullif(trim(raw_user_meta_data ->> 'name'), ''),
+        nullif(split_part(coalesce(email, ''), '@', 1), '')
+    ),
+    created_at
+from auth.users
+on conflict (user_id) do update
+set email = excluded.email,
+    full_name = excluded.full_name;
+
+drop policy if exists customer_profiles_owner_read on public.customer_profiles;
+create policy customer_profiles_owner_read
+on public.customer_profiles for select to authenticated
+using (user_id = auth.uid());
+
+drop policy if exists customer_profiles_admin_read on public.customer_profiles;
+create policy customer_profiles_admin_read
+on public.customer_profiles for select to authenticated
+using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create or replace function public.touch_customer_activity()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+    if auth.uid() is null then
+        raise exception 'Authentication is required to record customer activity';
+    end if;
+
+    update public.customer_profiles
+    set last_active_at = now()
+    where user_id = auth.uid();
+
+    if not found then
+        raise exception 'Customer profile not found';
+    end if;
+end;
+$$;
+
+revoke all on function public.touch_customer_activity() from public, anon;
+grant execute on function public.touch_customer_activity() to authenticated;
+
+create table if not exists public.site_visits (
+    visitor_id uuid not null,
+    visit_date date not null default (timezone('utc', now())::date),
+    primary key (visitor_id, visit_date)
+);
+
+alter table public.site_visits enable row level security;
+revoke all on public.site_visits from anon, authenticated;
+grant insert on public.site_visits to anon, authenticated;
+grant select on public.site_visits to authenticated;
+
+drop policy if exists site_visits_public_insert on public.site_visits;
+create policy site_visits_public_insert
+on public.site_visits
+for insert
+to anon, authenticated
+with check (visit_date = timezone('utc', now())::date);
+
+drop policy if exists site_visits_admin_read on public.site_visits;
+create policy site_visits_admin_read
+on public.site_visits
+for select
+to authenticated
+using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create or replace view public.site_visit_daily_summary
+with (security_invoker = true)
+as
+select visit_date, count(distinct visitor_id)::integer as unique_visitors
+from public.site_visits
+group by visit_date;
+
+revoke all on public.site_visit_daily_summary from anon, authenticated;
+grant select on public.site_visit_daily_summary to authenticated;
 
 do $$
 begin
