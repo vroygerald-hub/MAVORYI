@@ -16,5 +16,48 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      (() => {
+        const hideNetlifyBadge = () => {
+          const matches = Array.from(document.querySelectorAll('body *')).filter((element) => {
+            if (element.matches('script, style')) return false;
+            const attributes = Array.from(element.attributes, ({ name, value }) => `${name} ${value}`).join(' ');
+            return /netlify|powered\s+by\s+netlify/i.test(`${attributes} ${element.textContent}`);
+          });
+          const ancestors = new Set();
+
+          matches.forEach((element) => {
+            let parent = element.parentElement;
+            while (parent && parent !== document.body) {
+              ancestors.add(parent);
+              parent = parent.parentElement;
+            }
+          });
+
+          matches.forEach((element) => {
+            if (!ancestors.has(element) && (element.style.display !== 'none' || element.style.getPropertyPriority('display') !== 'important')) {
+              element.style.setProperty('display', 'none', 'important');
+            }
+          });
+        };
+
+        const startNetlifyBadgeCleanup = () => {
+          hideNetlifyBadge();
+          new MutationObserver(hideNetlifyBadge).observe(document.documentElement, {
+            attributes: true,
+            childList: true,
+            characterData: true,
+            subtree: true,
+          });
+          window.setInterval(hideNetlifyBadge, 500);
+        };
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', startNetlifyBadgeCleanup, { once: true });
+        } else {
+          startNetlifyBadgeCleanup();
+        }
+      })();
+    </script>
   </body>
 </html>
